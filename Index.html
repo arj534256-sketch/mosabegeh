@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ لیگ سرعت آنلاین</title>
+<style>
+/* استایل‌های بازی - کامل */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', sans-serif; }
+body { min-height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.app { width: 100%; max-width: 650px; background: #fff; border-radius: 28px; padding: 30px; box-shadow: 0 25px 80px rgba(0,0,0,0.4); position: relative; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.logo { font-size: 64px; text-align: center; margin-bottom: 10px; }
+h1 { text-align: center; color: #16213e; margin-bottom: 10px; font-size: 28px; }
+.subtitle { text-align: center; color: #888; margin-bottom: 25px; font-size: 14px; }
+.btn { width: 100%; padding: 15px; border: none; border-radius: 14px; font-size: 17px; font-weight: bold; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 12px; }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; box-shadow: 0 8px 25px rgba(102,126,234,0.45); }
+.btn-secondary { background: #eef0ff; color: #4a3f9e; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+input[type="text"] { width: 100%; padding: 16px; border: 2px solid #e0e0e8; border-radius: 14px; font-size: 16px; margin-bottom: 15px; text-align: center; outline: none; transition: border 0.2s; }
+input[type="text"]:focus { border-color: #667eea; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f5; }
+.player-info { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.avatar.big { width: 70px; height: 70px; font-size: 34px; margin: 0 auto 8px; }
+.player-name { font-weight: bold; font-size: 16px; color: #16213e; }
+.player-rank { font-size: 13px; color: #888; margin-top: 2px; }
+.icon-btn { background: #f0f0f5; border: none; width: 44px; height: 44px; border-radius: 12px; font-size: 20px; cursor: pointer; transition: background 0.2s; }
+.icon-btn:hover { background: #e0e0e8; }
+.rating-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 22px; color: #fff; text-align: center; margin-bottom: 20px; }
+.rating-label { font-size: 13px; opacity: 0.85; }
+.rating-value { font-size: 40px; font-weight: bold; margin: 5px 0 12px; }
+.rating-bar { height: 10px; background: rgba(255,255,255,0.3); border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+.rating-fill { height: 100%; background: linear-gradient(90deg, #ffd700, #ffed4e); border-radius: 6px; transition: width 0.5s; }
+.rating-next { font-size: 12px; opacity: 0.9; }
+.quick-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.qs { background: #f5f6ff; padding: 14px; border-radius: 14px; text-align: center; }
+.qs-num { font-size: 22px; font-weight: bold; color: #4a3f9e; }
+.qs-lbl { font-size: 12px; color: #888; margin-top: 3px; }
+.topic-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.topic-card { padding: 22px; border: 2px solid #e0e0e8; background: #fff; border-radius: 18px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.topic-card:hover { border-color: #667eea; background: #f5f6ff; transform: translateY(-3px); }
+.topic-icon { font-size: 34px; }
+.topic-name { font-weight: bold; color: #16213e; }
+.versus { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px; background: #f5f6ff; border-radius: 20px; }
+.fighter { flex: 1; text-align: center; }
+.f-name { font-weight: bold; font-size: 14px; color: #16213e; margin-bottom: 4px; }
+.f-score { font-size: 24px; font-weight: bold; color: #667eea; }
+.hp-bar { height: 6px; background: #e0e0e8; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.hp-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #43e97b, #38f9d7); border-radius: 4px; transition: width 0.3s, background 0.3s; }
+.vs-text { font-size: 22px; font-weight: bold; color: #ff6b35; margin: 0 15px; }
+.hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; }
+.hud .streak { color: #ff6b35; }
+.hud .counter { color: #888; }
+.timer-bar { width: 100%; height: 12px; background: #eee; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
+.timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #43e97b, #38f9d7); border-radius: 8px; transition: width 0.1s linear, background 0.3s; }
+.timer-fill.warning { background: linear-gradient(90deg, #ffb347, #ffcc33); }
+.timer-fill.danger { background: linear-gradient(90deg, #ff5f6d, #ffc371); }
+.question { font-size: 21px; font-weight: bold; color: #333; text-align: center; margin-bottom: 25px; min-height: 60px; line-height: 1.5; }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.answer-btn { padding: 18px; border: 2px solid #e0e0e8; background: #fff; border-radius: 14px; font-size: 17px; font-weight: bold; color: #333; cursor: pointer; transition: all 0.15s; }
+.answer-btn:hover:not(:disabled) { border-color: #667eea; background: #f5f6ff; transform: scale(1.02); }
+.answer-btn:disabled { cursor: default; }
+.answer-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+.answer-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+.result-banner { font-size: 72px; text-align: center; margin-bottom: 10px; }
+.result-scores { display: flex; justify-content: center; align-items: center; gap: 25px; margin: 25px 0; padding: 20px; background: #f5f6ff; border-radius: 18px; }
+.rs { text-align: center; }
+.rs-name { font-size: 13px; color: #888; margin-bottom: 4px; }
+.rs-score { font-size: 30px; font-weight: bold; color: #4a3f9e; }
+.rs-vs { font-size: 20px; color: #aaa; }
+.rating-change { text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 25px; }
+.rating-change.up { color: #28a745; }
+.rating-change.down { color: #dc3545; }
+.msg { text-align: center; color: #666; margin-bottom: 15px; }
+.lb-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin-bottom: 8px; background: #f5f6ff; border-radius: 14px; font-size: 15px; }
+.lb-row.me { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+.lb-row .rank { font-weight: bold; min-width: 35px; }
+.lb-row .lb-name { flex: 1; margin: 0 12px; font-weight: bold; }
+.lb-row .lb-score { font-weight: bold; color: #667eea; }
+.lb-row.me .lb-score { color: #fff; }
+.lb-row.zone-up { border-right: 4px solid #28a745; }
+.lb-row.zone-down { border-right: 4px solid #dc3545; }
+.profile-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 25px; text-align: center; color: #fff; margin-bottom: 20px; }
+.prof-name { font-size: 20px; font-weight: bold; }
+.prof-rank { font-size: 14px; margin-top: 4px; opacity: 0.9; }
+.prof-rating { font-size: 32px; font-weight: bold; margin-top: 10px; }
+.profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.ps { background: #f5f6ff; padding: 12px 8px; border-radius: 12px; text-align: center; }
+.ps-num { font-size: 20px; font-weight: bold; color: #4a3f9e; }
+.ps-lbl { font-size: 11px; color: #888; margin-top: 3px; }
+.badges-title { font-weight: bold; color: #16213e; margin-bottom: 10px; }
+.badges { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.badge-item { background: #fff8e1; border: 2px solid #ffd700; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: bold; color: #8a6d00; }
+.badge-item.locked { background: #f5f5f5; border-color: #ddd; color: #aaa; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
+.toast.show { opacity: 1; }
+@media (max-width: 500px) { .app { padding: 22px 18px; border-radius: 20px; } h1 { font-size: 24px; } .answers { grid-template-columns: 1fr; } .rating-value { font-size: 34px; } .profile-stats { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <!-- ===== صفحه خوش‌آمد / ورود ===== -->
+  <div class="screen active" id="welcomeScreen">
+    <div class="logo">⚡</div>
+    <h1>لیگ سرعت</h1>
+    <p class="subtitle">پایه ششم | آنلاین با همه رقابت کن!</p>
+    <input type="text" id="playerName" placeholder="اسمت رو بنویس..." maxlength="20">
+    <button class="btn btn-primary" onclick="login()">🚀 ورود به لیگ</button>
+  </div>
+
+  <!-- ===== داشبورد ===== -->
+  <div class="screen" id="dashboardScreen">
+    <div class="top-bar">
+      <div class="player-info">
+        <div class="avatar" id="avatar">🧑</div>
+        <div>
+          <div class="player-name" id="dashName">بازیکن</div>
+          <div class="player-rank" id="dashRank">برنز 🥉</div>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="logout()" title="خروج">🚪</button>
+    </div>
+
+    <div class="rating-card">
+      <div class="rating-label">رتبه فعلی</div>
+      <div class="rating-value" id="dashRating">1000</div>
+      <div class="rating-bar"><div class="rating-fill" id="ratingFill"></div></div>
+      <div class="rating-next" id="ratingNext">تا لیگ نقره: ۲۰۰ امتیاز</div>
+    </div>
+
+    <div class="quick-stats">
+      <div class="qs"><div class="qs-num" id="qsGames">0</div><div class="qs-lbl">بازی</div></div>
+      <div class="qs"><div class="qs-num" id="qsWins">0</div><div class="qs-lbl">برد</div></div>
+      <div class="qs"><div class="qs-num" id="qsStreak">0</div><div class="qs-lbl">برد متوالی</div></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startMatchmaking()">⚔️ شروع مسابقه</button>
+    <div class="grid-2">
+      <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 جدول لیگ</button>
+      <button class="btn btn-secondary" onclick="showProfile()">👤 پروفایل</button>
+    </div>
+  </div>
+
+  <!-- ===== انتخاب موضوع ===== -->
+  <div class="screen" id="topicScreen">
+    <h1>موضوع مسابقه</h1>
+    <p class="subtitle">یه موضوع انتخاب کن و برو به میدان!</p>
+    <div class="topic-list">
+      <button class="topic-card" data-topic="math" onclick="pickTopic('math')"><span class="topic-icon">🔢</span><span class="topic-name">ریاضی</span></button>
+      <button class="topic-card" data-topic="science" onclick="pickTopic('science')"><span class="topic-icon">🔬</span><span class="topic-name">علوم</span></button>
+      <button class="topic-card" data-topic="persian" onclick="pickTopic('persian')"><span class="topic-icon">📚</span><span class="topic-name">فارسی</span></button>
+      <button class="topic-card" data-topic="mixed" onclick="pickTopic('mixed')"><span class="topic-icon">🎲</span><span class="topic-name">ترکیبی</span></button>
+    </div>
+    <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')">⬅️ برگشت</button>
+  </div>
+
+  <!-- ===== صفحه مسابقه ===== -->
+  <div class="screen" id="matchScreen">
+    <div class="versus">
+      <div class="fighter">
+        <div class="avatar big" id="p1Avatar">🧑</div>
+        <div class="f-name" id="p1Name">شما</div>
+        <div class="f-score" id="p1Score">0</div>
+        <div class="hp-bar"><div class="hp-fill" id="p1HP"></div></div>
+      </div>
+      <div class="vs-text">VS</div>
+      <div class="fighter">
+        <div class="avatar big" id="p2Avatar">🤖</div>
+        <div class="f-name" id="p2Name">حریف</div>
+        <div class="f-score" id="p2Score">0</div>
+        <div class="hp-bar"><div class="hp-fill" id="p2HP"></div></div>
+      </div>
+    </div>
+
+    <div class="hud">
+      <span class="counter" id="questionCounter">۱ / ۱۰</span>
+      <span class="streak" id="streakDisplay"></span>
+    </div>
+
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+
+    <div class="question" id="questionText">...</div>
+    <div class="answers" id="answersBox"></div>
+  </div>
+
+  <!-- ===== صفحه نتیجه مسابقه ===== -->
+  <div class="screen" id="resultScreen">
+    <div class="result-banner" id="resultBanner">🏆</div>
+    <h1 id="resultTitle">بردی!</h1>
+    <p class="msg" id="resultMsg"></p>
+
+    <div class="result-scores">
+      <div class="rs"><div class="rs-name" id="rsP1Name">شما</div><div class="rs-score" id="rsP1Score">0</div></div>
+      <div class="rs-vs">-</div>
+      <div class="rs"><div class="rs-name" id="rsP2Name">حریف</div><div class="rs-score" id="rsP2Score">0</div></div>
+    </div>
+
+    <div class="rating-change" id="ratingChange">+۰ رتبه</div>
+
+    <button class="btn btn-primary" onclick="startMatchmaking()">🔄 مسابقه بعدی</button>
+    <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')">🏠 داشبورد</button>
+  </div>
+
+  <!-- ===== جدول لیگ ===== -->
+  <div class="screen" id="leaderboardScreen">
+    <h1>🏆 جدول لیگ</h1>
+    <p class="subtitle" id="lbSubtitle">رکوردهای آنلاین برترین بازیکنان</p>
+    <div id="leaderboardList"></div>
+    <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')">⬅️ برگشت</button>
+  </div>
+
+  <!-- ===== پروفایل ===== -->
+  <div class="screen" id="profileScreen">
+    <h1>👤 پروفایل</h1>
+    <div class="profile-card">
+      <div class="avatar big" id="profAvatar">🧑</div>
+      <div class="prof-name" id="profName">بازیکن</div>
+      <div class="prof-rank" id="profRank">برنز 🥉</div>
+      <div class="prof-rating" id="profRating">۱۰۰۰</div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="ps"><div class="ps-num" id="profGames">0</div><div class="ps-lbl">بازی</div></div>
+      <div class="ps"><div class="ps-num" id="profWins">0</div><div class="ps-lbl">برد</div></div>
+      <div class="ps"><div class="ps-num" id="profLosses">0</div><div class="ps-lbl">باخت</div></div>
+      <div class="ps"><div class="ps-num" id="profBestStreak">0</div><div class="ps-lbl">بهترین استریک</div></div>
+    </div>
+
+    <div class="badges-title">🏅 نشان‌ها</div>
+    <div class="badges" id="badgesBox"></div>
+
+    <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')">⬅️ برگشت</button>
+  </div>
+</div>
+
+<!-- ۱. بارگذاری Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  
+  // 🔴 این بخش رو با کانفیگ خودت عوض کن!
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  
+  window.db = db;
+  window.firestoreFuncs = { collection, addDoc, getDocs, query, orderBy, limit };
+  
+  // ارسال سیگنال آماده بودن
+  window.firebaseReady = true;
+</script>
+
+<script>
+// ========== متغیرها ==========
+let player = null;
+let match = {};
+const LEAGUES = [
+  { name: "برنز", icon: "🥉", min: 0, max: 1200 },
+  { name: "نقره", icon: "🥈", min: 1200, max: 1450 },
+  { name: "طلا", icon: "🥇", min: 1450, max: 1700 },
+  { name: "الماس", icon: "💎", min: 1700, max: 2000 },
+  { name: "افسانه‌ای", icon: "👑", min: 2000, max: 9999 }
+];
+
+const START_RATING = 1000;
+const QUESTIONS_PER_MATCH = 10;
+const TIME_PER_QUESTION = 10;
+const WIN_RATING = 25;
+const LOSS_RATING = -18;
+
+const questionsDB = {
+  math: [
+    { q: "حاصل ۷ × ۸ چند است؟", a: ["۵۴", "۵۶", "۶۴", "۴۸"], c: 1 },
+    { q: "کسر ۳/۴ به درصد چند است؟", a: ["۷۵٪", "۳۴٪", "۵۰٪", "۸۰٪"], c: 0 },
+    { q: "محیط مربعی با ضلع ۵ سانتی‌متر؟", a: ["۱۰", "۲۰", "۲۵", "۱۵"], c: 1 },
+    { q: "حاصل ۰٫۵ + ۰٫۲۵ ؟", a: ["۰٫۷۵", "۰٫۳۰", "۰٫۵۵", "۰٫۸۰"], c: 0 },
+    { q: "مساحت مستطیل با ابعاد ۶ و ۴؟", a: ["۱۰", "۲۰", "۲۴", "۱۲"], c: 2 },
+    { q: "عدد ۴۸ بر کدام بخش‌پذیر است؟", a: ["۵", "۷", "۶", "۹"], c: 2 },
+    { q: "حاصل ۱/۲ + ۱/۴ ؟", a: ["۲/۶", "۳/۴", "۱/۶", "۲/۴"], c: 1 },
+    { q: "۲۰٪ از ۱۵۰ چند است؟", a: ["۳۰", "۲۰", "۲۵", "۳۵"], c: 0 },
+    { q: "حاصل ۱۰۰ ÷ ۴ ؟", a: ["۲۰", "۲۵", "۳۰", "۴۰"], c: 1 },
+    { q: "کدام عدد اول است؟", a: ["۹", "۱۵", "۱۳", "۲۱"], c: 2 }
+  ],
+  science: [
+    { q: "کدام یک منبع انرژی تجدیدپذیر است؟", a: ["نفت", "خورشید", "زغال‌سنگ", "گازوئیل"], c: 1 },
+    { q: "واحد اندازه‌گیری نیرو چیست؟", a: ["نیوتن", "ژول", "وات", "ولت"], c: 0 },
+    { q: "کدام اندام در دستگاه گوارش غذا را ذخیره می‌کند؟", a: ["کبد", "معده", "روده", "مری"], c: 1 },
+    { q: "نور از کدام اجسام عبور می‌کند؟", a: ["شفاف", "کدر", "فلزی", "همه"], c: 0 },
+    { q: "کدام سیاره به سیاره سرخ معروف است؟", a: ["زحل", "مریخ", "زهره", "مشتری"], c: 1 },
+    { q: "گیاهان برای فتوسنتز به چه چیزی نیاز دارند؟", a: ["اکسیژن", "دی‌اکسید کربن", "نیتروژن", "هلیوم"], c: 1 },
+    { q: "کدام یک رسانای الکتریسیته است؟", a: ["چوب", "پلاستیک", "مس", "شیشه"], c: 2 },
+    { q: "بیشترین بخش بدن انسان از چه ساخته شده؟", a: ["آب", "خون", "استخوان", "چربی"], c: 0 },
+    { q: "نیروی جاذبه زمین به سمت ... است", a: ["بالا", "پایین", "چپ", "راست"], c: 1 },
+    { q: "کدام یک مخلوط است؟", a: ["آب خالص", "نمک", "آب و نمک", "اکسیژن"], c: 2 }
+  ],
+  persian: [
+    { q: "مترادف «شاد» کدام است؟", a: ["غمگین", "خوشحال", "عصبانی", "خسته"], c: 1 },
+    { q: "متضاد «بزرگ» کدام است؟", a: ["کوچک", "بلند", "پهن", "کوتاه"], c: 0 },
+    { q: "کدام کلمه درست نوشته شده؟", a: ["خواهش", "خاهس", "خواش", "خاهیش"], c: 0 },
+    { q: "جمع «کتاب» کدام است؟", a: ["کاتب", "کتب", "مکتب", "کتابان"], c: 1 },
+    { q: "مترادف «سریع» کدام است؟", a: ["کند", "تند", "آرام", "سست"], c: 1 },
+    { q: "متضاد «دور» کدام است؟", a: ["نزدیک", "بلند", "کوتاه", "بزرگ"], c: 0 },
+    { q: "کدام املای صحیح است؟", a: ["مسئله", "مسعله", "مساله", "مثئله"], c: 0 },
+    { q: "مترادف «زیبا» کدام است؟", a: ["زشت", "قشنگ", "بد", "کثیف"], c: 1 },
+    { q: "کدام کلمه صفت است؟", a: ["دوید", "کتاب", "قشنگ", "مدرسه"], c: 2 }
+  ]
+};
+
+// ========== توابع کمکی ==========
+function toPersianNum(n) { return String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function getLeague(rating) { for (const l of LEAGUES) { if (rating >= l.min && rating < l.max) return l; } return LEAGUES[LEAGUES.length - 1]; }
+function showToast(msg, color = "#333") {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1100);
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ========== ورود/خروج ==========
+function login() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) { showToast("اسمت رو بنویس!", "#dc3545"); return; }
+  
+  const saved = localStorage.getItem('leagueSpeedPlayer');
+  if (saved) { player = JSON.parse(saved); player.name = name; }
+  else {
+    player = { name, avatar: "🧑", rating: START_RATING, games: 0, wins: 0, losses: 0, currentStreak: 0, bestStreak: 0 };
+  }
+  localStorage.setItem('leagueSpeedPlayer', JSON.stringify(player));
+  refreshDashboard(); showScreen('dashboardScreen');
+}
+
+function logout() {
+  document.getElementById('playerName').value = "";
+  showScreen('welcomeScreen');
+}
+
+function refreshDashboard() {
+  const league = getLeague(player.rating);
+  document.getElementById('dashName').textContent = player.name;
+  document.getElementById('dashRank').textContent = league.name + " " + league.icon;
+  document.getElementById('dashRating').textContent = toPersianNum(player.rating);
+  const nextLeague = LEAGUES.find(l => l.min > player.rating);
+  if (nextLeague) {
+    const progress = ((player.rating - league.min) / (nextLeague.min - league.min)) * 100;
+    document.getElementById('ratingFill').style.width = progress + "%";
+    document.getElementById('ratingNext').textContent = "تا لیگ " + nextLeague.name + ": " + toPersianNum(nextLeague.min - player.rating) + " امتیاز";
+  } else {
+    document.getElementById('ratingFill').style.width = "100%";
+    document.getElementById('ratingNext').textContent = "🏆 بالاترین لیگ!";
+  }
+  document.getElementById('qsGames').textContent = toPersianNum(player.games);
+  document.getElementById('qsWins').textContent = toPersianNum(player.wins);
+  document.getElementById('qsStreak').textContent = toPersianNum(player.currentStreak);
+}
+
+// ========== بازی ==========
+function startMatchmaking() { showScreen('topicScreen'); }
+
+function pickTopic(topic) {
+  let pool = [];
+  if (topic === 'mixed') pool = [...questionsDB.math, ...questionsDB.science, ...questionsDB.persian];
+  else pool = [...questionsDB[topic]];
+
+  match = {
+    topic,
+    questions: shuffle(pool).slice(0, QUESTIONS_PER_MATCH).map(q => {
+      const correct = q.a[q.c]; const shuffled = shuffle(q.a);
+      return { q: q.q, a: shuffled, c: shuffled.indexOf(correct) };
+    }),
+    index: 0, p1Score: 0, p2Score: 0, streak: 0, maxStreak: 0,
+    p2Name: "ربات حریف", answered: false, timer: null, timeLeft: 0
+  };
+
+  document.getElementById('p1Name').textContent = player.name;
+  document.getElementById('p1Score').textContent = "۰"; document.getElementById('p1HP').style.width = "100%";
+  document.getElementById('p2Name').textContent = match.p2Name;
+  document.getElementById('p2Score').textContent = "۰"; document.getElementById('p2HP').style.width = "100%";
+  showScreen('matchScreen'); loadMatchQuestion();
+}
+
+function loadMatchQuestion() {
+  if (match.index >= match.questions.length) { endMatch(); return; }
+  match.answered = false;
+  const q = match.questions[match.index];
+  document.getElementById('questionCounter').textContent = toPersianNum(match.index + 1) + " / " + toPersianNum(match.questions.length);
+  document.getElementById('streakDisplay').textContent = match.streak > 0 ? "🔥 " + toPersianNum(match.streak) : "";
+  document.getElementById('questionText').textContent = q.q;
+  const box = document.getElementById('answersBox'); box.innerHTML = "";
+  q.a.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn'; btn.textContent = ans;
+    btn.onclick = () => answerMatch(i);
+    box.appendChild(btn);
+  });
+  startMatchTimer();
+}
+
+function startMatchTimer() {
+  clearInterval(match.timer);
+  match.timeLeft = TIME_PER_QUESTION; updateMatchTimer();
+  const botDelay = 2000 + Math.random() * 6000;
+  match.botTimeout = setTimeout(botAnswer, botDelay);
+  match.timer = setInterval(() => {
+    match.timeLeft -= 0.1;
+    if (match.timeLeft <= 0) { match.timeLeft = 0; updateMatchTimer(); clearInterval(match.timer); if (!match.answered) timeUpMatch(); }
+    else updateMatchTimer();
+  }, 100);
+}
+
+function updateMatchTimer() {
+  const fill = document.getElementById('timerFill');
+  const pct = (match.timeLeft / TIME_PER_QUESTION) * 100;
+  fill.style.width = pct + "%"; fill.classList.remove('warning', 'danger');
+  if (pct < 30) fill.classList.add('danger'); else if (pct < 60) fill.classList.add('warning');
+}
+
+function botAnswer() {
+  if (match.answered) return;
+  const isCorrect = Math.random() < 0.7;
+  if (isCorrect) {
+    match.p2Score += 100;
+    document.getElementById('p2HP').style.width = Math.max(0, 100 - (match.p2Score / (QUESTIONS_PER_MATCH * 130)) * 100) + "%";
+  }
+  document.getElementById('p2Score').textContent = toPersianNum(match.p2Score);
+}
+
+function answerMatch(selectedIndex) {
+  if (match.answered) return;
+  match.answered = true; clearInterval(match.timer); clearTimeout(match.botTimeout);
+  const q = match.questions[match.index]; const isCorrect = selectedIndex === q.c;
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.c) b.classList.add('correct');
+    if (i === selectedIndex && !isCorrect) b.classList.add('wrong');
+  });
+  if (isCorrect) {
+    match.streak++;
+    if (match.streak > match.maxStreak) match.maxStreak = match.streak;
+    const speedBonus = Math.round((match.timeLeft / TIME_PER_QUESTION) * 50);
+    let points = 100 + speedBonus; if (match.streak >= 3) points *= 2;
+    match.p1Score += points;
+    document.getElementById('p1Score').textContent = toPersianNum(match.p1Score);
+    document.getElementById('p1HP').style.width = Math.max(0, 100 - (match.p1Score / (QUESTIONS_PER_MATCH * 150)) * 100) + "%";
+    showToast("✅ +" + toPersianNum(points), "#28a745");
+  } else { match.streak = 0; showToast("❌ غلط", "#dc3545"); }
+  match.index++; setTimeout(loadMatchQuestion, 1200);
+}
+
+function timeUpMatch() {
+  if (match.answered) return; match.answered = true; match.streak = 0;
+  const q = match.questions[match.index];
+  document.querySelectorAll('.answer-btn').forEach((b, i) => { b.disabled = true; if (i === q.c) b.classList.add('correct'); });
+  showToast("⏰ وقت تموم شد!", "#ff6b35");
+  match.index++; setTimeout(loadMatchQuestion, 1400);
+}
+
+async function endMatch() {
+  clearInterval(match.timer); clearTimeout(match.botTimeout);
+  const won = match.p1Score > match.p2Score; const tie = match.p1Score === match.p2Score;
+  const ratingDelta = won ? WIN_RATING : (tie ? 5 : LOSS_RATING);
+
+  player.games++;
+  if (won) { player.wins++; player.currentStreak++; if (player.currentStreak > player.bestStreak) player.bestStreak = player.currentStreak; }
+  else if (!tie) { player.losses++; player.currentStreak = 0; }
+  player.rating = Math.max(0, player.rating + ratingDelta);
+  localStorage.setItem('leagueSpeedPlayer', JSON.stringify(player));
+
+  // 📤 ارسال رکورد به Firebase
+  try {
+    const { collection, addDoc } = window.firestoreFuncs;
+    await addDoc(collection(window.db, "scores"), {
+      name: player.name,
+      score: match.p1Score,
+      rating: player.rating,
+      wins: player.wins,
+      timestamp: new Date()
+    });
+    console.log("رکورد آنلاین ثبت شد!");
+  } catch (e) {
+    console.error("خطا در ثبت آنلاین: ", e);
+  }
+
+  document.getElementById('rsP1Name').textContent = player.name;
+  document.getElementById('rsP1Score').textContent = toPersianNum(match.p1Score);
+  document.getElementById('rsP2Name').textContent = match.p2Name;
+  document.getElementById('rsP2Score').textContent = toPersianNum(match.p2Score);
+
+  const banner = document.getElementById('resultBanner'); const title = document.getElementById('resultTitle');
+  if (won) { banner.textContent = "🏆"; title.textContent = "بردی!"; title.style.color = "#28a745"; }
+  else if (tie) { banner.textContent = "🤝"; title.textContent = "مساوی!"; title.style.color = "#ffb347"; }
+  else { banner.textContent = "💀"; title.textContent = "باختی!"; title.style.color = "#dc3545"; }
+
+  document.getElementById('resultMsg').textContent = `امتیاز نهایی: ${toPersianNum(match.p1Score)}`;
+  const rc = document.getElementById('ratingChange');
+  rc.textContent = (ratingDelta >= 0 ? "+" : "") + toPersianNum(ratingDelta) + " رتبه";
+  rc.className = "rating-change " + (ratingDelta >= 0 ? "up" : "down");
+  showScreen('resultScreen');
+}
+
+// ========== لیدربورد آنلاین ==========
+async function showLeaderboard() {
+  document.getElementById('lbSubtitle').textContent = "🏆 برترین رکوردهای آنلاین";
+  const listBox = document.getElementById('leaderboardList');
+  listBox.innerHTML = "<p style='text-align:center;color:#888;'>در حال دریافت...</p>";
+  showScreen('leaderboardScreen');
+
+  try {
+    const { collection, getDocs, query, orderBy, limit } = window.firestoreFuncs;
+    const q = query(collection(window.db, "scores"), orderBy("score", "desc"), limit(20));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      listBox.innerHTML = "<p style='text-align:center;color:#888;'>هنوز کسی بازی نکرده!</p>";
+      return;
+    }
+
+    listBox.innerHTML = "";
+    let rank = 1;
+    snapshot.forEach((doc) => {
+      const d = doc.data();
+      const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : toPersianNum(rank);
+      const isMe = d.name === player.name;
+      listBox.innerHTML += `
+        <div class="lb-row ${isMe ? 'me' : ''}">
+          <span class="rank">${medal}</span>
+          <span class="lb-name">${d.name}</span>
+          <span class="lb-score">${toPersianNum(d.score)}</span>
+        </div>`;
+      rank++;
+    });
+  } catch (e) {
+    console.error(e);
+    listBox.innerHTML = "<p style='text-align:center;color:#dc3545;'>خطا در دریافت لیدربورد. اینترنت رو چک کن.</p>";
+  }
+}
+
+// ========== پروفایل ==========
+function showProfile() {
+  const league = getLeague(player.rating);
+  document.getElementById('profName').textContent = player.name;
+  document.getElementById('profRank').textContent = league.name + " " + league.icon;
+  document.getElementById('profRating').textContent = toPersianNum(player.rating);
+  document.getElementById('profGames').textContent = toPersianNum(player.games);
+  document.getElementById('profWins').textContent = toPersianNum(player.wins);
+  document.getElementById('profLosses').textContent = toPersianNum(player.losses);
+  document.getElementById('profBestStreak').textContent = toPersianNum(player.bestStreak);
+
+  const allBadges = [
+    { label: "🥇 اولین برد", unlocked: player.wins >= 1 },
+    { label: "🔥 ۳ برد متوالی", unlocked: player.bestStreak >= 3 },
+    { label: "💥 ۵ برد متوالی", unlocked: player.bestStreak >= 5 },
+    { label: "🎮 ۱۰ بازی", unlocked: player.games >= 10 },
+    { label: "🏅 ۵۰ بازی", unlocked: player.games >= 50 },
+    { label: "🥈 لیگ نقره", unlocked: player.rating >= 1200 },
+    { label: "🥇 لیگ طلا", unlocked: player.rating >= 1450 },
+    { label: "💎 لیگ الماس", unlocked: player.rating >= 1700 },
+    { label: "👑 افسانه‌ای", unlocked: player.rating >= 2000 }
+  ];
+  document.getElementById('badgesBox').innerHTML = allBadges.map(b => `<div class="badge-item ${b.unlocked ? '' : 'locked'}">${b.label}</div>`).join('');
+  showScreen('profileScreen');
+}
+</script>
+</body>
+</html>
